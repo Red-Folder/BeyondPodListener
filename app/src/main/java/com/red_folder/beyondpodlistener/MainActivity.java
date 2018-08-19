@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Looper;
 import android.provider.SyncStateContract;
 import android.util.Log;
 import android.view.Menu;
@@ -94,6 +95,19 @@ public class MainActivity extends Activity
         */
 
         registerReceiver(mReceiver, filter);
+
+        Thread t = new Thread() {
+            public void run() {
+                Looper.prepare(); //For Preparing Message Pool for the child Thread
+
+                DataPush push = new DataPush();
+                push.ping();
+
+                Looper.loop(); //Loop in the message queue
+            }
+        };
+
+        t.start();
     }
 
     protected void onResume()
