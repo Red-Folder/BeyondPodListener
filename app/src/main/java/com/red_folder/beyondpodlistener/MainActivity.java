@@ -82,13 +82,6 @@ public class MainActivity extends Activity
         _Console1.setText("Music broadcasts are disabled by default. To enable use: Menu > More > Settings > " +
                 " Menu (Press Menu agan) > Advanced Settings > Publish Current Episode");
 
-    }
-
-    protected void onResume()
-    {
-
-        super.onResume();
-
         IntentFilter filter = new IntentFilter();
         filter.addAction("mobi.beyondpod.action.PLAYBACK_STATUS");
 
@@ -101,14 +94,25 @@ public class MainActivity extends Activity
         */
 
         registerReceiver(mReceiver, filter);
+    }
+
+    protected void onResume()
+    {
+        super.onResume();
     };
 
     protected void onPause()
     {
 
         super.onPause();
-        unregisterReceiver(mReceiver);
+
     };
+
+    protected  void onDestroy()
+    {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
+    }
 
     View.OnClickListener _TrasportControlsListener = new View.OnClickListener()
     {
