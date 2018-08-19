@@ -96,12 +96,17 @@ public class MainActivity extends Activity
 
         registerReceiver(mReceiver, filter);
 
+        final Context currentContext = this;
         Thread t = new Thread() {
             public void run() {
                 Looper.prepare(); //For Preparing Message Pool for the child Thread
 
-                DataPush push = new DataPush();
-                push.ping();
+                DataPush push = new DataPush(currentContext);
+                if (push.ready()) {
+                    PodModel model = new PodModel();
+                    model.setEpisodeName("Hello World");
+                    push.push(model.toJson());
+                }
 
                 Looper.loop(); //Loop in the message queue
             }

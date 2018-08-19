@@ -18,6 +18,7 @@ android {
     }
     buildTypes.each {
         it.buildConfigField("String", "PingAPIKey", PingAPIKey)
+        it.buildConfigField("String", "BeyondPodAPIKey", BeyondPodAPIKey)
     }
 }
 
