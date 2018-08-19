@@ -11,7 +11,6 @@ import java.net.URL;
 public class DataPush {
     private static final String TAG = "DataPush";
 
-    // https://rfc-activity.azurewebsites.net/api/Ping?code=kdd4WUItBDjuB2JmcZjLabEvyKuGaC9Dh/v3sN13OcY04VNFX/sT8A==
     public boolean ping() {
         boolean result = false;
         try {
