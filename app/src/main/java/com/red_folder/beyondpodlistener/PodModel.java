@@ -3,11 +3,14 @@ package com.red_folder.beyondpodlistener;
 import android.content.Intent;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.Date;
 
 public class PodModel {
+    private Date created = new Date();
     private boolean playing;
     private String feedname;
     private String feedurl;
@@ -22,6 +25,9 @@ public class PodModel {
     private String artist;
     private String album;
     private String track;
+
+    public Date getCreated() { return created; };
+    public void setCreated(Date created) { this.created = created; }
 
     public boolean getPlaying() { return playing; };
     public void setPlaying(boolean playing) { this.playing = playing; }
@@ -86,7 +92,7 @@ public class PodModel {
     }
 
     public String toJson() {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create();
         Type type =  new TypeToken<PodModel>() {}.getType();
         return gson.toJson(this);
     }

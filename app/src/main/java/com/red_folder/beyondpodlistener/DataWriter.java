@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 public class DataWriter {
     private static final String TAG = "DataWriter";
@@ -40,8 +41,7 @@ public class DataWriter {
     }
 
     private File generateNewFile() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyMMdd-hhmmss.SSS");
-        String filename = simpleDateFormat.format(new Date()) + ".json";
+        String filename = UUID.randomUUID().toString() + ".json";
         return new File(_baseFolder, filename);
     }
 
