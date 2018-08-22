@@ -28,6 +28,21 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Stop" />
+
+            <Button
+                android:id="@+id/push"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Push" />
+
+            <Button
+                android:id="@+id/reset"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Reset" />
+
         </LinearLayout>
 
     </RelativeLayout>
