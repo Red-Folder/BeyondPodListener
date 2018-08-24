@@ -28,16 +28,21 @@ public class DataWriter {
         _baseFolder = toBeProcessedFolder;
     }
 
-    public void add(Intent intent) {
-        String json = PodModel.fromIntent(intent).toJson();
+    public boolean add(PodModel model) {
+        String json = model.toJson();
         Log.v(TAG, "Received data:");
         Log.v(TAG, json);
 
         File file = generateNewFile();
         Log.v(TAG, "Saving to: " + file.getAbsolutePath());
 
-        writeStringToFile(file, json);
-        Log.v(TAG, "Saved");
+        if (writeStringToFile(file, json)) {
+            Log.v(TAG, "Saved");
+            return true;
+        } else {
+            Log.v(TAG, "Not saved");
+            return false;
+        }
     }
 
     private File generateNewFile() {

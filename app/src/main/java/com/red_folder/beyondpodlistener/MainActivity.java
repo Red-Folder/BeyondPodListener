@@ -10,10 +10,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
@@ -24,8 +26,12 @@ public class MainActivity extends Activity
 {
     static final String TAG = "MainActivity";
 
+    private TextView _FeedName, _EpisodeName, _FileCount;
+    private ProgressBar _Progress, _CurrentlyPlaying;
     private Button _Start, _Stop, _Push, _Reset;
     //private Intent listenerIntent;
+
+    private ToBePushedFileObserver _toBePushedFileObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -34,6 +40,13 @@ public class MainActivity extends Activity
         setContentView(R.layout.activity_main);
 
         final Context currentContext = this;
+
+        _FeedName = (TextView) findViewById(R.id.feedName);
+        _EpisodeName = (TextView) findViewById(R.id.episodeName);
+        _Progress = (ProgressBar) findViewById(R.id.progress);
+        _CurrentlyPlaying = (ProgressBar) findViewById(R.id.currentlyPlaying);
+
+        _FileCount = (TextView) findViewById(R.id.fileCount);
 
         _Start = (Button) findViewById(R.id.start);
         _Stop = (Button) findViewById(R.id.stop);
@@ -109,11 +122,26 @@ public class MainActivity extends Activity
     protected void onResume()
     {
         super.onResume();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BeyondPodReceiver.PLAYBACK_STATUS_ACTION);
+        filter.addAction(ToBePushedFileObserver.TO_BE_PUSHED_CHANGE_ACTION);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, filter);
+
+
+        _toBePushedFileObserver = new ToBePushedFileObserver(this, getFilesDir());
+        _toBePushedFileObserver.startWatching();
     };
 
     protected void onPause()
     {
         super.onPause();
+
+        _toBePushedFileObserver.stopWatching();
+        _toBePushedFileObserver = null;
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
     };
 
     protected  void onDestroy()
@@ -140,4 +168,40 @@ public class MainActivity extends Activity
         }
     };
     */
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (action == BeyondPodReceiver.PLAYBACK_STATUS_ACTION) {
+                try {
+                    _FeedName.setText(intent.getStringExtra("FeedName"));
+                    _EpisodeName.setText(intent.getStringExtra("EpisodeName"));
+                    long duration = intent.getLongExtra("EpisodeDuration", -1);
+                    long position = intent.getLongExtra("EpisodePosition", -1);
+                    boolean playing = intent.getBooleanExtra("Playing", false);
+
+                    _Progress.setMax((int) duration);
+                    _Progress.setProgress((int) position);
+
+                    if (playing) {
+                        _CurrentlyPlaying.setVisibility(View.VISIBLE);
+                    } else {
+                        _CurrentlyPlaying.setVisibility(View.INVISIBLE);
+                    }
+                } catch (Exception ex) {
+                    Log.e(TAG, "Unable to update current podcast details", ex);
+                }
+            }
+
+            if (action == ToBePushedFileObserver.TO_BE_PUSHED_CHANGE_ACTION) {
+                try {
+                    _FileCount.setText(String.valueOf(intent.getIntExtra("FileCount", 0)));
+                } catch (Exception ex) {
+                    Log.e(TAG, "Unable to set file count", ex);
+                }
+            }
+        }
+    };
 }
