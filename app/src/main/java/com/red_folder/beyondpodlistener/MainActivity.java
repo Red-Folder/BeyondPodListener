@@ -36,6 +36,7 @@ public class MainActivity extends Activity
     //private Intent listenerIntent;
 
     private ToBePushedFileObserver _toBePushedFileObserver;
+    private DataPushJobService _dataPushJobService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -127,6 +128,10 @@ public class MainActivity extends Activity
                 t.start();
             }
         });
+
+        if (!DataPushJobService.isScheduled(this)) {
+            DataPushJobService.scheduleJob(this);
+        }
     }
 
     protected void onResume()
@@ -160,6 +165,10 @@ public class MainActivity extends Activity
     protected  void onDestroy()
     {
         super.onDestroy();
+
+        if (DataPushJobService.isScheduled(this)) {
+            DataPushJobService.cancelJob(this);
+        }
     }
 
     /*
