@@ -143,6 +143,8 @@ public class MainActivity extends Activity
 
         _toBePushedFileObserver = new ToBePushedFileObserver(this, getFilesDir());
         _toBePushedFileObserver.startWatching();
+
+        _FileCount.setText(String.valueOf(_toBePushedFileObserver.getCount()));
     };
 
     protected void onPause()

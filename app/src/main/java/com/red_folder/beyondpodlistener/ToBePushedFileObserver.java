@@ -22,8 +22,10 @@ public class ToBePushedFileObserver extends FileObserver {
         _context = context;
         _folder = new File(appFolder, "to-be-processed");
         Log.v(TAG, "Setting up ToBePushedFileObserver as " + _folder);
+    }
 
-
+    public int getCount() {
+        return _folder.listFiles().length;
     }
 
     @Override
@@ -32,11 +34,9 @@ public class ToBePushedFileObserver extends FileObserver {
     }
 
     private void raiseEvent() {
-        int fileCount = _folder.listFiles().length;
-
         // Raise broadcast
         Intent outboundIntent = new Intent(ToBePushedFileObserver.TO_BE_PUSHED_CHANGE_ACTION);
-        outboundIntent.putExtra("FileCount", fileCount);
+        outboundIntent.putExtra("FileCount", getCount());
 
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
         localBroadcastManager.sendBroadcast(outboundIntent);
