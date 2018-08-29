@@ -17,7 +17,7 @@ public class ToBePushedFileObserver extends FileObserver {
     private File _folder;
 
     public ToBePushedFileObserver(Context context, File appFolder) {
-        super(new File(appFolder, "to-be-processed").toString(), CREATE | DELETE);
+        super(new File(appFolder, "to-be-processed").toString(), CREATE | DELETE | MOVED_FROM);
 
         _context = context;
         _folder = new File(appFolder, "to-be-processed");

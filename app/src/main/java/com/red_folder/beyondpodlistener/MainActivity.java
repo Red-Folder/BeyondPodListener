@@ -11,10 +11,12 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
@@ -29,6 +31,8 @@ public class MainActivity extends Activity
     private TextView _FeedName, _EpisodeName, _FileCount;
     private ProgressBar _Progress, _CurrentlyPlaying;
     private Button _Start, _Stop, _Push, _Reset;
+    private LinearLayout _PodcastDetail, _WaitingForPodCastDetails;
+
     //private Intent listenerIntent;
 
     private ToBePushedFileObserver _toBePushedFileObserver;
@@ -40,6 +44,9 @@ public class MainActivity extends Activity
         setContentView(R.layout.activity_main);
 
         final Context currentContext = this;
+
+        _PodcastDetail = (LinearLayout) findViewById(R.id.podcastDetails);
+        _WaitingForPodCastDetails = (LinearLayout) findViewById(R.id.waitingForPodcastDetails);
 
         _FeedName = (TextView) findViewById(R.id.feedName);
         _EpisodeName = (TextView) findViewById(R.id.episodeName);
@@ -78,7 +85,10 @@ public class MainActivity extends Activity
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ListenerService.class);
                 intent.setAction(ListenerService.ACTION_STOP_FOREGROUND_SERVICE);
-                startService(intent);
+                stopService(intent);
+
+                _WaitingForPodCastDetails.setVisibility(View.VISIBLE);
+                _PodcastDetail.setVisibility(View.GONE);
             }
         });
 
@@ -129,6 +139,7 @@ public class MainActivity extends Activity
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, filter);
 
+        // TODO - Request latest pod details
 
         _toBePushedFileObserver = new ToBePushedFileObserver(this, getFilesDir());
         _toBePushedFileObserver.startWatching();
@@ -176,6 +187,9 @@ public class MainActivity extends Activity
 
             if (action == BeyondPodReceiver.PLAYBACK_STATUS_ACTION) {
                 try {
+                    _WaitingForPodCastDetails.setVisibility(View.GONE);
+                    _PodcastDetail.setVisibility(View.VISIBLE);
+
                     _FeedName.setText(intent.getStringExtra("FeedName"));
                     _EpisodeName.setText(intent.getStringExtra("EpisodeName"));
                     long duration = intent.getLongExtra("EpisodeDuration", -1);

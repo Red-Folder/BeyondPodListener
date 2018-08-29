@@ -9,11 +9,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+import android.widget.RemoteViews;
 
-public class ListenerService extends Service {
+public class ListenerService extends Service implements INotificationListener {
     private static String TAG = "ListenerService";
 
     private static final int ONGOING_NOTIFICATION_ID = 5567;
@@ -23,21 +27,34 @@ public class ListenerService extends Service {
     public static final String ACTION_START_FOREGROUND_SERVICE = "ACTION_START_FOREGROUND_SERVICE";
     public static final String ACTION_STOP_FOREGROUND_SERVICE = "ACTION_STOP_FOREGROUND_SERVICE";
 
-    private BroadcastReceiver mReceiver = new BeyondPodReceiver();
+    private BroadcastReceiver mReceiver = new BeyondPodReceiver(this);
+    private Notification.Builder mBuilder = null;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, importance);
+        notificationManager.createNotificationChannel(notificationChannel);
+
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        mBuilder = new Notification.Builder(this, NOTIFICATION_CHANNEL_ID);
+        mBuilder.setContentIntent(pendingIntent);
+        mBuilder.setSmallIcon(R.mipmap.ic_launcher);
+        mBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(intent != null)
-        {
+        if (intent != null) {
             String action = intent.getAction();
 
-            switch (action)
-            {
+            switch (action) {
                 case ACTION_START_FOREGROUND_SERVICE:
                     startForegroundService();
                     break;
@@ -66,27 +83,13 @@ public class ListenerService extends Service {
         filter.addAction("mobi.beyondpod.action.PLAYBACK_STATUS");
         registerReceiver(mReceiver, filter);
 
-        Intent notificationIntent = new Intent();
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        mBuilder.setContentTitle(getText(R.string.notification_title))
+                .setContentText(getText(R.string.notification_message))
+                .setColor(Color.GREEN)
+                .setProgress(0, 0, false)
+                .setVisibility(Notification.VISIBILITY_PUBLIC);
 
-        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-
-        NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, importance);
-        notificationManager.createNotificationChannel(notificationChannel);
-
-        Notification notification =
-                new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
-                        .setContentTitle(getText(R.string.notification_title))
-                        .setContentText(getText(R.string.notification_message))
-                        //.setSmallIcon(R.drawable.icon)
-                        .setContentIntent(pendingIntent)
-                        //.setTicker(getText(R.string.ticker_text))
-                        .build();
-
-        startForeground(ONGOING_NOTIFICATION_ID, notification);
+        startForeground(ONGOING_NOTIFICATION_ID, mBuilder.build());
     }
 
     private void stopForegroundService() {
@@ -95,5 +98,32 @@ public class ListenerService extends Service {
 
         // Stop the foreground service.
         stopSelf();
+    }
+
+    private Notification buildNotification(PodModel model) {
+        String title = model.getPlaying() ? "Listening" : "Was listening to";
+        String text = model.getEpisodeName();
+        int color = model.getPlaying() ? Color.RED : Color.GREEN;
+
+        mBuilder.setContentTitle(title)
+                .setContentText(text)
+                .setColor(color);
+
+        if (model.getPlaying() && model.getEpisodeDuration() > 0) {
+            mBuilder.setProgress((int)model.getEpisodeDuration(), (int)model.getEpisodePosition(), false);
+        } else {
+            mBuilder.setProgress(0, 0, false);
+        }
+
+        return mBuilder.build();
+    }
+
+    @Override
+    public void updateNotification(PodModel model) {
+        if (model != null) {
+            NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            notificationManager.notify(ONGOING_NOTIFICATION_ID, buildNotification(model));
+        }
     }
 }
