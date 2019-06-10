@@ -1,5 +1,35 @@
 apply plugin: 'com.android.application'
 
+def getPingAPIKey() {
+    if (System.getenv("PingAPIKey")) {
+        String pingAPIKey = ""
+        pingAPIKey = System.getenv("PingAPIKey")
+        return "\"$pingAPIKey\""
+    } else {
+        return PingAPIKey
+    }
+}
+
+def getBeyondPodRawDataAPIKey() {
+    if (System.getenv("BeyondPodRawDataAPIKey")) {
+        String beyondPodRawDataAPIKey = ""
+        beyondPodRawDataAPIKey = System.getenv("BeyondPodRawDataAPIKey")
+        return "\"$beyondPodRawDataAPIKey\""
+    } else {
+        return BeyondPodRawDataAPIKey
+    }
+}
+
+def getAppCenterSecretKey() {
+    if (System.getenv("AppCenterSecretKey")) {
+        String appCenterSecretKey = ""
+        appCenterSecretKey = System.getenv("AppCenterSecretKey")
+        return "\"$appCenterSecretKey\""
+    } else {
+        return AppCenterSecretKey
+    }
+}
+
 android {
     compileSdkVersion 26
     defaultConfig {
@@ -17,9 +47,9 @@ android {
         }
     }
     buildTypes.each {
-        it.buildConfigField("String", "PingAPIKey", PingAPIKey)
-        it.buildConfigField("String", "BeyondPodRawDataAPIKey", BeyondPodRawDataAPIKey)
-        it.buildConfigField("String", "AppCenterSecretKey", AppCenterSecretKey)
+        it.buildConfigField("String", "PingAPIKey", getPingAPIKey())
+        it.buildConfigField("String", "BeyondPodRawDataAPIKey", getBeyondPodRawDataAPIKey())
+        it.buildConfigField("String", "AppCenterSecretKey", getAppCenterSecretKey())
     }
 }
 
