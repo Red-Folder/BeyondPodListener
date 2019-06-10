@@ -19,6 +19,7 @@ android {
     buildTypes.each {
         it.buildConfigField("String", "PingAPIKey", PingAPIKey)
         it.buildConfigField("String", "BeyondPodRawDataAPIKey", BeyondPodRawDataAPIKey)
+        it.buildConfigField("String", "AppCenterSecretKey", AppCenterSecretKey)
     }
 }
 
@@ -31,4 +32,10 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.google.code.gson:gson:2.8.5'
+}
+
+dependencies {
+    def appCenterSdkVersion = '2.0.0'
+    implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
+    implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
 }
