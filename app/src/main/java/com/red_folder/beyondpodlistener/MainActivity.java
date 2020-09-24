@@ -46,7 +46,9 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
 
-        AppCenter.start(getApplication(), BuildConfig.AppCenterSecretKey, Analytics.class, Crashes.class);
+        if (!AppCenter.isConfigured()) {
+            AppCenter.start(getApplication(), BuildConfig.AppCenterSecretKey, Analytics.class, Crashes.class);
+        }
 
         setContentView(R.layout.activity_main);
 

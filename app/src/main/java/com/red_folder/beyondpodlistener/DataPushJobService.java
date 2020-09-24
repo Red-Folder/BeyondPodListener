@@ -13,6 +13,10 @@ import android.os.IBinder;
 import android.util.Log;
 
 
+import com.microsoft.appcenter.AppCenter;
+import com.microsoft.appcenter.analytics.Analytics;
+import com.microsoft.appcenter.crashes.Crashes;
+
 import java.util.List;
 
 import static android.app.job.JobInfo.NETWORK_TYPE_ANY;
@@ -69,6 +73,10 @@ public class DataPushJobService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
+        if (!AppCenter.isConfigured()) {
+            AppCenter.start(getApplication(), BuildConfig.AppCenterSecretKey, Analytics.class, Crashes.class);
+        }
+
         Log.v(TAG, "onStartJob");
         mRunningParams = jobParameters;
 

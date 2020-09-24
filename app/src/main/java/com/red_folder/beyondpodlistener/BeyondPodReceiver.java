@@ -7,6 +7,10 @@ import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.microsoft.appcenter.AppCenter;
+import com.microsoft.appcenter.analytics.Analytics;
+import com.microsoft.appcenter.crashes.Crashes;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,6 +36,14 @@ public class BeyondPodReceiver extends BroadcastReceiver {
     // Object for intrinsic lock (per docs 0 length array "lighter" than a normal Object
     @Override
     public void onReceive(Context context, Intent intent) {
+        try {
+            if (!AppCenter.isConfigured()) {
+                AppCenter.start((android.app.Application)context.getApplicationContext(), BuildConfig.AppCenterSecretKey, Analytics.class, Crashes.class);
+            }
+        }
+        catch (Exception ex) {
+        }
+
         String action = intent.getAction();
 
         Log.v(TAG, "On Receive");

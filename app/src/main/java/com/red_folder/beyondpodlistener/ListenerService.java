@@ -17,6 +17,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
 
+import com.microsoft.appcenter.AppCenter;
+import com.microsoft.appcenter.analytics.Analytics;
+import com.microsoft.appcenter.crashes.Crashes;
+
 public class ListenerService extends Service implements INotificationListener {
     private static String TAG = "ListenerService";
 
@@ -33,6 +37,10 @@ public class ListenerService extends Service implements INotificationListener {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if (!AppCenter.isConfigured()) {
+            AppCenter.start(getApplication(), BuildConfig.AppCenterSecretKey, Analytics.class, Crashes.class);
+        }
 
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         int importance = NotificationManager.IMPORTANCE_HIGH;
